@@ -31,6 +31,6 @@ export const FAQ_ITEMS = [
   },
   {
     q: 'Quanto custa?',
-    a: 'O MVP é gratuito enquanto estamos validando. Aproveite.',
+    a: 'A carta digital sai por R$ 9,90, pago via PIX. Se quiser receber a foto impressa em casa, é R$ 19,90 + frete (calculado pelo CEP).',
   },
 ]

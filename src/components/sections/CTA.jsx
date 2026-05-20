@@ -57,8 +57,8 @@ export function CTA() {
           </h2>
 
           <p className="mx-auto mt-6 max-w-xl text-pretty text-base leading-relaxed text-white/85 sm:text-lg">
-            Não deixe pra depois. Comece agora — é grátis, leva dois minutos, e o link
-            dura pra sempre.
+            Não deixe pra depois. Comece agora — leva dois minutos, paga via PIX, e o
+            link dura pra sempre.
           </p>
 
           <Button
