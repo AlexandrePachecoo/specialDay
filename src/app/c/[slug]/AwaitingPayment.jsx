@@ -17,12 +17,31 @@ export function AwaitingPayment({ slug, title, brCode, qrBase64, expiresAt }) {
     return () => clearInterval(t)
   }, [target])
 
-  // Polling leve do status — quando webhook chegar e a carta virar 'paid',
-  // a próxima reload via router.refresh() troca essa tela pela carta.
+  // Polling ativo do status — consulta /payment-status, que pergunta direto ao
+  // gateway se o PIX caiu (não depende só do webhook). Quando virar 'paid',
+  // router.refresh() troca essa tela pela carta.
   useEffect(() => {
     if (!slug) return
-    const t = setInterval(() => router.refresh(), 5000)
-    return () => clearInterval(t)
+    let stopped = false
+
+    async function check() {
+      try {
+        const res = await fetch(`/api/letters/${slug}/payment-status`, {
+          cache: 'no-store',
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        if (!stopped && data?.status === 'paid') router.refresh()
+      } catch {
+        // ignora erros de rede — tenta de novo no próximo tick
+      }
+    }
+
+    const t = setInterval(check, 5000)
+    return () => {
+      stopped = true
+      clearInterval(t)
+    }
   }, [slug, router])
 
   async function copyBrCode() {
