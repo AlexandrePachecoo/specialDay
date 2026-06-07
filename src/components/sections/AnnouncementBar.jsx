@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight, Heart } from 'lucide-react'
+import { formatBRL, BASE_PRICE_CENTS, WITH_PHOTO_PRICE_CENTS } from '@/constants/pricing'
 
 export function AnnouncementBar() {
   return (
@@ -19,8 +20,9 @@ export function AnnouncementBar() {
         <Heart className="h-3.5 w-3.5 shrink-0 fill-current" />
         <span className="text-pretty">
           <span aria-hidden className="mr-1">💝</span>
-          Promo Dia dos Namorados — sua carta por apenas{' '}
-          <span className="font-semibold">R$ 9,90</span>
+          Dia dos Namorados — de{' '}
+          <s className="opacity-70">{formatBRL(WITH_PHOTO_PRICE_CENTS)}</s> por{' '}
+          <span className="font-semibold">{formatBRL(BASE_PRICE_CENTS)}</span> · só até dia 8
         </span>
         <span className="hidden items-center gap-1 font-semibold underline-offset-2 group-hover:underline sm:inline-flex">
           Criar agora
