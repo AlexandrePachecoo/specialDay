@@ -31,6 +31,6 @@ export const FAQ_ITEMS = [
   },
   {
     q: 'Quanto custa?',
-    a: 'O MVP é gratuito enquanto estamos validando. Aproveite.',
+    a: 'Durante a promoção de Dia dos Namorados, sua carta sai por apenas R$ 9,90 — pagamento único, sem mensalidade. Aproveite enquanto dura.',
   },
 ]
