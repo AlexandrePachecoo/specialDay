@@ -1,5 +1,6 @@
 import { Inter, Playfair_Display } from 'next/font/google'
 import { Toaster } from 'sonner'
+import { Analytics } from '@vercel/analytics/next'
 import { SITE } from '@/constants/site'
 import './globals.css'
 
@@ -46,6 +47,7 @@ export default function RootLayout({ children }) {
       <body className="min-h-screen bg-background font-sans">
         {children}
         <Toaster position="top-center" richColors closeButton />
+        <Analytics />
       </body>
     </html>
   )
