@@ -31,6 +31,6 @@ export const FAQ_ITEMS = [
   },
   {
     q: 'Quanto custa?',
-    a: 'Durante a promoção de Dia dos Namorados, sua carta sai por apenas R$ 9,90 — pagamento único, sem mensalidade. Aproveite enquanto dura.',
+    a: 'Durante a promoção de Dia dos Namorados, sua carta sai por apenas R$ 9,90 (de R$ 19,90) — pagamento único, sem mensalidade. A promo vale só até dia 8, então aproveite. E você pode ver o preview da carta de graça antes de pagar.',
   },
 ]

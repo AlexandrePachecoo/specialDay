@@ -5,8 +5,9 @@ import { motion } from 'framer-motion'
 import { ArrowRight, Check, Heart, Sparkles, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { formatBRL, BASE_PRICE_CENTS, WITH_PHOTO_PRICE_CENTS } from '@/constants/pricing'
 
-const proofs = ['Sem cadastro', 'Link permanente', 'Pronto em minutos']
+const proofs = ['Preview grátis', 'Pronto em 2 min', 'Pagamento único — sem mensalidade']
 
 export function Hero() {
   return (
@@ -26,12 +27,12 @@ export function Hero() {
           className="flex flex-col items-start gap-7"
         >
           <Badge variant="default" className="gap-1.5 rounded-full px-3 py-1">
-            <Sparkles className="h-3 w-3" />
-            <span className="font-medium tracking-wide">Sem cadastro · sem fricção</span>
+            <Heart className="h-3 w-3 fill-current" />
+            <span className="font-medium tracking-wide">Promo Dia dos Namorados · só até dia 8</span>
           </Badge>
 
           <h1 className="text-balance font-display text-[2.6rem] font-semibold leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
-            Transforme sentimentos em algo{' '}
+            Surpreenda neste Dia dos Namorados com uma carta{' '}
             <span className="relative inline-block">
               <span className="text-gradient-romantic italic">inesquecível</span>
               <svg
@@ -53,9 +54,23 @@ export function Hero() {
           </h1>
 
           <p className="max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
-            Uma cartinha digital com a sua voz. Escreva, escolha um tema, adicione foto e
-            música — e compartilhe um link que vai durar mais que qualquer print.
+            Monte sua carta digital com foto e música,{' '}
+            <span className="font-medium text-foreground">veja o preview grátis</span> — e só
+            pague se amar o resultado. Pronto em 2 minutos, sem cadastro.
           </p>
+
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-primary/15 bg-secondary/60 px-5 py-3 shadow-soft">
+            <div className="flex items-baseline gap-2">
+              <s className="text-sm text-muted-foreground">de {formatBRL(WITH_PHOTO_PRICE_CENTS)}</s>
+              <span className="text-gradient-romantic font-display text-3xl font-bold leading-none">
+                {formatBRL(BASE_PRICE_CENTS)}
+              </span>
+            </div>
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+              <Sparkles className="h-3 w-3" />
+              só até dia 8
+            </span>
+          </div>
 
           <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
             <Button
@@ -64,7 +79,7 @@ export function Hero() {
               className="group rounded-full shadow-soft transition-all hover:shadow-glow"
             >
               <Link href="/create">
-                Criar minha carta
+                Criar e ver preview grátis
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
             </Button>
