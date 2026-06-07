@@ -1,3 +1,4 @@
+import { AnnouncementBar } from '@/components/sections/AnnouncementBar'
 import { Navbar } from '@/components/sections/Navbar'
 import { Hero } from '@/components/sections/Hero'
 import { HowItWorks } from '@/components/sections/HowItWorks'
@@ -10,6 +11,7 @@ import { Footer } from '@/components/sections/Footer'
 export default function HomePage() {
   return (
     <>
+      <AnnouncementBar />
       <Navbar />
       <main>
         <Hero />
