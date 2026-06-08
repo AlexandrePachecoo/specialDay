@@ -158,6 +158,58 @@ export const THEMES = {
       '--letter-wax-color': '#dc2626',
     },
   },
+  cupido: {
+    id: 'cupido',
+    name: 'Cupido',
+    description: 'Vermelho apaixonado, corações que seguem o seu toque.',
+    emoji: '💘',
+    decoration: 'cupido',
+    ornament: '❤',
+    vars: {
+      '--letter-bg':
+        'radial-gradient(ellipse at top, #ffd9e2 0%, #ffc1d2 35%, #ff8fab 70%, #e23c63 100%)',
+      '--letter-surface': '#fff8fa',
+      '--letter-surface-soft': '#ffeef3',
+      '--letter-ink': '#4a0d22',
+      '--letter-ink-soft': '#9a3b56',
+      '--letter-accent': '#d81e4a',
+      '--letter-accent-soft': '#ffb3c6',
+      '--letter-accent-glow': 'rgba(216, 30, 74, 0.45)',
+      '--letter-border': 'rgba(216, 30, 74, 0.22)',
+      '--letter-shadow':
+        '0 30px 70px -20px rgba(216, 30, 74, 0.45), 0 0 60px rgba(255, 107, 138, 0.25)',
+      '--letter-heading-font': 'var(--font-playfair), Georgia, serif',
+      '--letter-body-font': 'var(--font-inter), system-ui, sans-serif',
+      '--letter-rule': '❤',
+      '--letter-wax-color': '#d81e4a',
+    },
+  },
+  galaxia: {
+    id: 'galaxia',
+    name: 'Galáxia do Amor',
+    description: 'Aurora cósmica, estrelas cadentes e constelação de coração.',
+    emoji: '💫',
+    decoration: 'galaxy',
+    ornament: '✦',
+    vars: {
+      '--letter-bg':
+        'radial-gradient(ellipse at 30% 20%, #3b1b6e 0%, #1e1145 40%, #2a0f4a 65%, #0a0418 100%)',
+      '--letter-surface': '#1a1136',
+      '--letter-surface-soft': '#241a4a',
+      '--letter-ink': '#fce7ff',
+      '--letter-ink-soft': '#c8a8e9',
+      '--letter-accent': '#f472b6',
+      '--letter-accent-soft': '#d8b4fe',
+      '--letter-accent-glow': 'rgba(244, 114, 182, 0.5)',
+      '--letter-border': 'rgba(216, 180, 254, 0.25)',
+      '--letter-shadow':
+        '0 30px 80px -20px rgba(168, 85, 247, 0.5), 0 0 70px rgba(244, 114, 182, 0.2)',
+      '--letter-heading-font': 'var(--font-playfair), Georgia, serif',
+      '--letter-body-font': 'var(--font-inter), system-ui, sans-serif',
+      '--letter-rule': '✦',
+      '--letter-wax-color': '#f472b6',
+    },
+  },
 }
 
 export const THEME_LIST = Object.values(THEMES)
