@@ -1,6 +1,7 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 // Decorações por tema. Cada `kind` renderiza uma camada de fundo
 // (atrás do conteúdo) com elementos animados. Posicionamento é
@@ -27,6 +28,8 @@ export function ThemeDecorations({ kind }) {
       {kind === 'sakura' && <Sakura />}
       {kind === 'confetti' && <Confetti />}
       {kind === 'paper' && <Paper />}
+      {kind === 'cupido' && <Cupido />}
+      {kind === 'galaxy' && <LoveGalaxy />}
       <CornerFlourish />
     </div>
   )
@@ -364,5 +367,420 @@ function Paper() {
         )
       })}
     </>
+  )
+}
+
+/* ----- interação compartilhada (cursor + clique) -----
+   Captura mouse/toque na window e converte pra coords relativas
+   ao container da decoração. Usado pelos temas interativos. */
+
+const HEART_PATH =
+  'M12 21s-7-4.5-9.5-9C.5 7.5 4 3 8 3c2 0 3.5 1 4 2 .5-1 2-2 4-2 4 0 7.5 4.5 5.5 9-2.5 4.5-9.5 9-9.5 9z'
+
+function useInteraction(ref) {
+  const [cursor, setCursor] = useState({ x: -200, y: -200, active: false })
+  const [bursts, setBursts] = useState([])
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    let raf = 0
+
+    const toLocal = (clientX, clientY) => {
+      const r = el.getBoundingClientRect()
+      return { x: clientX - r.left, y: clientY - r.top }
+    }
+
+    const onMove = (e) => {
+      const point = 'touches' in e ? e.touches[0] : e
+      if (!point) return
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(() => {
+        const { x, y } = toLocal(point.clientX, point.clientY)
+        setCursor({ x, y, active: true })
+      })
+    }
+
+    const onLeave = () => setCursor((c) => ({ ...c, active: false }))
+
+    const onClick = (e) => {
+      const point = 'changedTouches' in e ? e.changedTouches[0] : e
+      if (!point) return
+      const { x, y } = toLocal(point.clientX, point.clientY)
+      const id = `${Date.now()}-${Math.round(x)}-${Math.round(y)}`
+      setBursts((b) => [...b, { id, x, y }])
+      window.setTimeout(
+        () => setBursts((b) => b.filter((it) => it.id !== id)),
+        1100
+      )
+    }
+
+    window.addEventListener('mousemove', onMove, { passive: true })
+    window.addEventListener('touchmove', onMove, { passive: true })
+    window.addEventListener('mouseleave', onLeave)
+    window.addEventListener('click', onClick)
+    window.addEventListener('touchend', onClick, { passive: true })
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('touchmove', onMove)
+      window.removeEventListener('mouseleave', onLeave)
+      window.removeEventListener('click', onClick)
+      window.removeEventListener('touchend', onClick)
+      cancelAnimationFrame(raf)
+    }
+  }, [ref])
+
+  return { cursor, bursts }
+}
+
+/* explosão de corações a partir de um ponto (clique/toque) */
+function HeartBurst({ x, y, accent = 'var(--letter-accent)' }) {
+  const pieces = Array.from({ length: 10 })
+  return (
+    <div
+      className="absolute"
+      style={{ left: x, top: y, transform: 'translate(-50%, -50%)' }}
+    >
+      {pieces.map((_, i) => {
+        const angle = (i / pieces.length) * Math.PI * 2
+        const dist = 48 + (i % 3) * 22
+        const size = 12 + (i % 3) * 6
+        return (
+          <motion.svg
+            key={i}
+            viewBox="0 0 24 24"
+            className="absolute"
+            style={{
+              width: size,
+              height: size,
+              color: accent,
+              filter: 'drop-shadow(0 0 6px var(--letter-accent-glow))',
+            }}
+            initial={{ x: 0, y: 0, scale: 0.2, opacity: 1 }}
+            animate={{
+              x: Math.cos(angle) * dist,
+              y: Math.sin(angle) * dist - 14,
+              scale: [0.2, 1.1, 0.6],
+              opacity: [1, 1, 0],
+              rotate: (i % 2 ? 1 : -1) * 40,
+            }}
+            transition={{ duration: 1, ease: 'easeOut' }}
+          >
+            <path fill="currentColor" d={HEART_PATH} />
+          </motion.svg>
+        )
+      })}
+    </div>
+  )
+}
+
+/* ----- cupido (interativo: corações sobem + seguem o cursor) ----- */
+
+function Cupido() {
+  const ref = useRef(null)
+  const { cursor, bursts } = useInteraction(ref)
+
+  return (
+    <div ref={ref} className="absolute inset-0">
+      {/* halo radial pulsante ao fundo */}
+      <motion.div
+        className="absolute left-1/2 top-1/3 h-[60vmin] w-[60vmin] -translate-x-1/2 -translate-y-1/2 rounded-full"
+        style={{
+          background:
+            'radial-gradient(circle, var(--letter-accent-glow) 0%, transparent 65%)',
+          opacity: 0.5,
+        }}
+        animate={{ scale: [1, 1.18, 1], opacity: [0.35, 0.55, 0.35] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
+      {/* corações de bokeh subindo */}
+      {Array.from({ length: 18 }).map((_, i) => {
+        const x = seeded(i, 100) * 100
+        const size = 14 + (i % 5) * 10
+        const duration = 9 + (i % 5) * 2
+        const delay = (i * 0.6) % 9
+        const blur = (i % 3) * 1.4
+        return (
+          <motion.svg
+            key={i}
+            viewBox="0 0 24 24"
+            className="absolute"
+            style={{
+              left: `${x}%`,
+              width: size,
+              height: size,
+              color: 'var(--letter-accent)',
+              filter: `blur(${blur}px) drop-shadow(0 0 8px var(--letter-accent-glow))`,
+              opacity: 0.22 + (i % 3) * 0.12,
+            }}
+            initial={{ top: '110%', rotate: 0 }}
+            animate={{
+              top: '-15%',
+              rotate: (i % 2 ? 1 : -1) * 24,
+              x: [0, 16, -12, 0],
+            }}
+            transition={{
+              duration,
+              delay,
+              repeat: Infinity,
+              ease: 'easeIn',
+            }}
+          >
+            <path fill="currentColor" d={HEART_PATH} />
+          </motion.svg>
+        )
+      })}
+
+      {/* coração que segue o cursor */}
+      <motion.svg
+        viewBox="0 0 24 24"
+        className="absolute"
+        style={{
+          width: 30,
+          height: 30,
+          color: 'var(--letter-accent)',
+          filter: 'drop-shadow(0 0 12px var(--letter-accent-glow))',
+          marginLeft: -15,
+          marginTop: -15,
+        }}
+        animate={{
+          left: cursor.x,
+          top: cursor.y,
+          opacity: cursor.active ? 0.9 : 0,
+          scale: cursor.active ? [1, 1.18, 1] : 0.6,
+        }}
+        transition={{
+          left: { type: 'spring', stiffness: 120, damping: 16 },
+          top: { type: 'spring', stiffness: 120, damping: 16 },
+          scale: { duration: 1.4, repeat: Infinity, ease: 'easeInOut' },
+          opacity: { duration: 0.3 },
+        }}
+      >
+        <path fill="currentColor" d={HEART_PATH} />
+      </motion.svg>
+
+      {/* explosões no clique/toque */}
+      <AnimatePresence>
+        {bursts.map((b) => (
+          <HeartBurst key={b.id} x={b.x} y={b.y} />
+        ))}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+/* ----- galáxia do amor (interativo: parallax + estrelas cadentes) ----- */
+
+function LoveGalaxy() {
+  const ref = useRef(null)
+  const { cursor, bursts } = useInteraction(ref)
+
+  // offset de parallax normalizado (-1..1) a partir do centro
+  const px = ref.current
+    ? (cursor.x / ref.current.clientWidth - 0.5) * 2
+    : 0
+  const py = ref.current
+    ? (cursor.y / ref.current.clientHeight - 0.5) * 2
+    : 0
+
+  // constelação em forma de coração (curva paramétrica)
+  const heartPts = Array.from({ length: 12 }).map((_, i) => {
+    const t = (i / 12) * Math.PI * 2
+    const hx = 16 * Math.sin(t) ** 3
+    const hy =
+      13 * Math.cos(t) -
+      5 * Math.cos(2 * t) -
+      2 * Math.cos(3 * t) -
+      Math.cos(4 * t)
+    return { x: 50 + hx * 1.5, y: 42 - hy * 1.5 }
+  })
+
+  return (
+    <div ref={ref} className="absolute inset-0">
+      {/* nebulosa / aurora ondulante */}
+      {[
+        { c: 'var(--letter-accent-glow)', s: 70, x: 25, y: 28, d: 14 },
+        {
+          c: 'rgba(168,85,247,0.35)',
+          s: 80,
+          x: 75,
+          y: 62,
+          d: 18,
+        },
+        { c: 'rgba(99,102,241,0.3)', s: 60, x: 55, y: 20, d: 16 },
+      ].map((n, i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-full"
+          style={{
+            left: `${n.x}%`,
+            top: `${n.y}%`,
+            width: `${n.s}vmin`,
+            height: `${n.s}vmin`,
+            background: `radial-gradient(circle, ${n.c} 0%, transparent 60%)`,
+            transform: `translate(-50%, -50%) translate(${px * (i + 1) * 6}px, ${py * (i + 1) * 6}px)`,
+            filter: 'blur(8px)',
+          }}
+          animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.7, 0.4] }}
+          transition={{
+            duration: n.d,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
+      ))}
+
+      {/* poeira estelar com parallax */}
+      {Array.from({ length: 40 }).map((_, i) => {
+        const x = seeded(i + 100, 100) * 100
+        const y = seeded(i + 200, 100) * 100
+        const size = 1 + (i % 3)
+        const depth = 1 + (i % 4)
+        return (
+          <motion.span
+            key={`d-${i}`}
+            className="absolute rounded-full"
+            style={{
+              left: `${x}%`,
+              top: `${y}%`,
+              width: size,
+              height: size,
+              background: 'var(--letter-accent-soft, #fff)',
+              transform: `translate(${px * depth * 4}px, ${py * depth * 4}px)`,
+            }}
+            animate={{ opacity: [0.2, 0.9, 0.2] }}
+            transition={{
+              duration: 2 + (i % 4),
+              delay: (i * 0.1) % 3,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        )
+      })}
+
+      {/* constelação de coração */}
+      <svg
+        aria-hidden
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        className="absolute inset-0 h-full w-full"
+        style={{
+          transform: `translate(${px * 8}px, ${py * 8}px)`,
+        }}
+      >
+        {heartPts.map((p, i) => {
+          const next = heartPts[(i + 1) % heartPts.length]
+          return (
+            <line
+              key={`l-${i}`}
+              x1={p.x}
+              y1={p.y}
+              x2={next.x}
+              y2={next.y}
+              stroke="var(--letter-accent-soft)"
+              strokeWidth="0.12"
+              strokeDasharray="0.5 0.9"
+              opacity="0.45"
+            />
+          )
+        })}
+      </svg>
+      {heartPts.map((p, i) => (
+        <motion.div
+          key={`hp-${i}`}
+          className="absolute"
+          style={{
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            transform: `translate(-50%, -50%) translate(${px * 8}px, ${py * 8}px)`,
+          }}
+          animate={{ opacity: [0.5, 1, 0.5], scale: [0.85, 1.15, 0.85] }}
+          transition={{
+            duration: 2.6 + (i % 3),
+            delay: (i * 0.25) % 3,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        >
+          <svg
+            viewBox="0 0 16 16"
+            width={i % 4 === 0 ? 16 : 10}
+            height={i % 4 === 0 ? 16 : 10}
+            style={{ filter: 'drop-shadow(0 0 6px var(--letter-accent-glow))' }}
+          >
+            <path
+              d="M8 0 L9.5 6.5 L16 8 L9.5 9.5 L8 16 L6.5 9.5 L0 8 L6.5 6.5 Z"
+              fill="var(--letter-accent)"
+            />
+          </svg>
+        </motion.div>
+      ))}
+
+      {/* estrelas cadentes periódicas */}
+      {Array.from({ length: 4 }).map((_, i) => {
+        const startX = 10 + i * 22
+        const delay = 2 + i * 3.5
+        return (
+          <motion.div
+            key={`shoot-${i}`}
+            className="absolute h-px"
+            style={{
+              left: `${startX}%`,
+              top: `${5 + (i % 3) * 10}%`,
+              width: '14vmin',
+              background:
+                'linear-gradient(90deg, transparent, var(--letter-accent-soft), #fff)',
+              transformOrigin: 'left center',
+              rotate: '32deg',
+            }}
+            initial={{ opacity: 0, x: 0, y: 0 }}
+            animate={{
+              opacity: [0, 1, 0],
+              x: ['0vmin', '40vmin'],
+              y: ['0vmin', '26vmin'],
+            }}
+            transition={{
+              duration: 1.2,
+              delay,
+              repeat: Infinity,
+              repeatDelay: 9,
+              ease: 'easeIn',
+            }}
+          />
+        )
+      })}
+
+      {/* brilho que segue o cursor */}
+      <motion.div
+        className="absolute rounded-full"
+        style={{
+          width: 120,
+          height: 120,
+          marginLeft: -60,
+          marginTop: -60,
+          background:
+            'radial-gradient(circle, var(--letter-accent-glow) 0%, transparent 70%)',
+        }}
+        animate={{
+          left: cursor.x,
+          top: cursor.y,
+          opacity: cursor.active ? 0.8 : 0,
+        }}
+        transition={{
+          left: { type: 'spring', stiffness: 90, damping: 18 },
+          top: { type: 'spring', stiffness: 90, damping: 18 },
+          opacity: { duration: 0.4 },
+        }}
+      />
+
+      {/* explosões de estrelas/corações no clique */}
+      <AnimatePresence>
+        {bursts.map((b) => (
+          <HeartBurst key={b.id} x={b.x} y={b.y} accent="var(--letter-accent-soft)" />
+        ))}
+      </AnimatePresence>
+    </div>
   )
 }
