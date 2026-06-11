@@ -1,9 +1,9 @@
 // Preços da carta em centavos. Calculados no servidor — nunca confiar no cliente.
 //
-// Carta base (digital, sem foto física): R$ 9,90
+// Carta base (digital, sem foto física): R$ 14,90
 // Carta com foto física impressa: R$ 19,90 + frete (varia por região)
 
-export const BASE_PRICE_CENTS = 990
+export const BASE_PRICE_CENTS = 1490
 export const WITH_PHOTO_PRICE_CENTS = 1990
 export const PAYMENT_EXPIRY_MINUTES = 20
 

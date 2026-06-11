@@ -35,7 +35,6 @@ import { useShippingQuote } from '@/hooks/useShippingQuote'
 import {
   BASE_PRICE_CENTS,
   WITH_PHOTO_PRICE_CENTS,
-  computeAmountCents,
   formatBRL,
 } from '@/constants/pricing'
 
@@ -159,10 +158,6 @@ export function CreateLetterForm() {
   }
 
   const photoEnabled = !!values.physicalPhotoEnabled
-  const previewTotal = computeAmountCents({
-    physicalPhotoEnabled: photoEnabled,
-    shippingCostCents: photoEnabled && shippingState.quote?.cost ? shippingState.quote.cost : 0,
-  })
 
   if (result) {
     return (
@@ -494,7 +489,7 @@ export function CreateLetterForm() {
           ) : (
             <>
               <MailPlus className="h-4 w-4 transition-transform group-hover:rotate-[-6deg]" />
-              <span>Ver preview e pagar {formatBRL(previewTotal)}</span>
+              <span>Ver preview grátis</span>
             </>
           )}
         </Button>
